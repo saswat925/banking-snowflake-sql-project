@@ -1,0 +1,73 @@
+=== CUSTOMER DEMOGRAPHICS ===
+- Total Customers: 2,940 (from 3,000 raw — 59 duplicates removed)
+- Senior (60+): 1,066 (36.3%) — largest segment
+- Middle-Aged (41-60): 857 (29.2%)
+- Adult (25-40): 701 (23.8%)
+- Young (<25): 316 (10.7%) — smallest, gap in youth acquisition
+- Gender: Nearly even (1,453 vs 1,487)
+- Nationality: Europe highest (1,283), Africa lowest (174)
+
+=== KEY PERFORMANCE INDICATORS ===
+- Total Deposits: $1.97B
+- Total Loans: $1.74B
+- Avg Income: $171,475
+- Total Savings: $683.6M
+- Total Credit Card Balance: $9.3M
+- Total Superannuation: $75.1M
+
+=== FINANCIAL ANALYSIS ===
+- Deposits: Senior highest ($708.7M), Young lowest ($204.8M)
+- Loans: Senior highest ($628.8M), Young lowest ($177.5M)
+- Credit Card Balance: Middle-Aged highest ($2.76M), Young lowest ($951K)
+- Income by Occupation: Software Engineer IV highest ($261,595), Staff Account I lowest ($97,680)
+
+=== RISK ANALYSIS ===
+- Middle-Aged: 2.26
+- Senior: 2.26
+- Adult: 2.24
+- Young: 2.22
+- Risk is uniform across all ages — age is NOT a differentiator
+
+=== BUSINESS LENDING ===
+- 99.5% of customers (2,926/2,940) have active business lending
+- Total portfolio: $2.55B
+- Senior: 1,062 users, $928.4M total, $870,898 avg
+- Middle-Aged: 853 users, $732.4M total, $854,572 avg
+- Adult: 698 users, $617.0M total, $880,111 avg (highest avg)
+- Young: 313 users, $269.2M total, $851,994 avg
+- Top occupations: General Manager ($1.43M), Engineer I ($1.30M), Food Chemist ($1.25M)
+
+=== LOYALTY CLASSIFICATION ===
+- Jade: 1,304 (44.4%) — base tier
+- Silver: 754 (25.6%)
+- Gold: 574 (19.5%)
+- Platinum: 308 (10.5%) — premium tier
+- 70% are Jade/Silver — big upgrade opportunity
+
+=== CREDIT CARD DISTRIBUTION ===
+- 1 card: 1,880 (64%)
+- 2 cards: 755 (25.7%)
+- 3 cards: 305 (10.4%)
+- 64% single-card holders — cross-sell opportunity
+
+=== FEE STRUCTURE ===
+- High: 1,441 (49%)
+- Mid: 944 (32.1%)
+- Low: 555 (18.9%)
+- Nearly half on High fees — biggest revenue contributors
+
+=== ADDITIONAL FINDINGS ===
+- Multi-property owners: 1,488
+- Highest-value customer: Harry Burns ($6.42M)
+- Busiest branch: BR_ID 3 (1,318 customers)
+- Top relationship manager: IA_ID 8 (176 customers)
+
+=== RECOMMENDATIONS ===
+1. Youth Acquisition — digital-first products for 10.7% Young segment
+2. Senior Wealth Management — premium advisory for 36.3% Senior segment
+3. Adult Cross-Sell — target with home loans, investments, insurance
+4. Risk-Based Pricing — use income & loan-to-deposit ratio, not age
+5. Branch Optimization — BR_ID 3 at 45% capacity
+6. RM Workload Balancing — redistribute from IA_ID 8
+7. Loyalty Upgrades — 70% Jade/Silver, run engagement campaigns
+8. Credit Card Cross-Sell — 64% hold only 1 card
