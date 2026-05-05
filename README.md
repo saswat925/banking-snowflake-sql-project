@@ -1,177 +1,319 @@
-# banking-snowflake-sql-project
-# Banking Customer Analytics
+# 🏦 Banking Customer Analytics | End-to-End Data Engineering on Snowflake
 
-## Project Overview
-Exploratory data analysis of a banking dataset using Snowflake SQL — covering data cleaning, customer segmentation, financial analysis, risk assessment, and business lending insights.
-
-**Database:** `BANKINGDB.PUBLIC`
-**Raw Table:** `BANKING` (3,000 rows)
-**Cleaned Table:** `BANKING_CLEAN` (2,940 rows after deduplication)
-**Columns:** 27 (Client_ID, Age, Nationality, Occupation, Income, Deposits, Loans, Risk_Weighting, etc.)
+![Snowflake](https://img.shields.io/badge/Platform-Snowflake-29B5E8?style=for-the-badge&logo=snowflake&logoColor=white)
+![SQL](https://img.shields.io/badge/Language-SQL-orange?style=for-the-badge&logo=postgresql&logoColor=white)
+![Status](https://img.shields.io/badge/Status-Completed-brightgreen?style=for-the-badge)
+![Dataset](https://img.shields.io/badge/Records-2,940-blue?style=for-the-badge)
 
 ---
 
-## Data Cleaning Steps
-- Identified 59 duplicate rows using `Client_ID`
-- Created `BANKING_CLEAN` using `ROW_NUMBER()` to retain one record per client
-- Verified no NULL values in key columns
-- Added derived column `age_category` (Young <25 / Adult 25-40 / Middle-Aged 41-60 / Senior 60+)
+## 📌 Project Summary
+
+| Item | Detail |
+|------|--------|
+| **Domain** | Banking / Financial Services |
+| **Platform** | Snowflake Cloud Data Warehouse |
+| **Raw Records** | 3,000 customers |
+| **Clean Records** | 2,940 customers |
+| **Total Deposits** | $1.97B |
+| **Total Loans** | $1.74B |
+| **Business Lending** | $2.55B |
+| **Approach** | Ingestion → Deduplication → Feature Engineering → Analytics |
+| **Queries** | 18 analytical SQL queries |
 
 ---
 
-## Key Performance Indicators
+## 🏗️ Architecture — Medallion-Style Pipeline
 
-| KPI | Value |
-|-----|-------|
-| Total Customers | 2,940 |
-| Total Deposits | $1.97B |
-| Total Loans | $1.74B |
-| Avg Income | $171,475 |
-| Total Savings | $683.6M |
-| Total Credit Card Balance | $9.3M |
-| Total Superannuation | $75.1M |
+```
+┌────────────────────────────────────────────────────────────────────────────────┐
+│                        END-TO-END DATA PIPELINE                                │
+│                                                                                │
+│  ┌──────────┐    ┌───────────────┐    ┌──────────────┐    ┌───────────────┐   │
+│  │  BRONZE  │───▶│    SILVER     │───▶│     GOLD     │───▶│   INSIGHTS    │   │
+│  │ (Raw)    │    │ (Cleaned)     │    │ (Enriched)   │    │ (Analytics)   │   │
+│  └──────────┘    └───────────────┘    └──────────────┘    └───────────────┘   │
+│                                                                                │
+│  • 3,000 rows     • ROW_NUMBER()    • Age categories    • Segmentation      │
+│  • 27 columns     • Dedup (59 dupes)• Loyalty tiers     • Risk analysis     │
+│  • Raw schema     • 2,940 clean     • Feature eng.      • Lending insights  │
+│                                                                                │
+└────────────────────────────────────────────────────────────────────────────────┘
+```
 
 ---
 
-## Analysis & Insights
+## 📂 Project Structure
 
-### 1. Customer Demographics
+```
+banking-data-engineering/
+│
+├── 📄 README.md                   ← Project documentation (you are here)
+├── 📄 banking.sql                 ← All SQL queries (18 analyses)
+│
+├── 🔹 Bronze Layer                ← Raw data (BANKING - 3,000 rows)
+├── 🔹 Silver Layer                ← Cleaned (BANKING_CLEAN - 2,940 rows)
+├── 🔹 Gold Layer                  ← Derived: age_category, loyalty, risk
+└── 🔹 Analytics Layer             ← Customer segmentation & financial insights
+```
 
-| Age Category | Count | % |
-|---|---|---|
-| Senior (60+) | 1,066 | 36.3% |
-| Middle-Aged (41-60) | 857 | 29.2% |
-| Adult (25-40) | 701 | 23.8% |
-| Young (<25) | 316 | 10.7% |
+---
 
-- 65% of customers are 41+ — strong opportunity for retirement planning & wealth management
-- Young segment at only 10.7% — gap in youth acquisition
-- **Gender:** Nearly even split (1,453 vs 1,487)
-- **Nationality:** Europe highest (1,283), Africa lowest (174)
+## 📊 Data Schema (27 Columns)
 
-### 2. Financial Analysis
+| # | Key Columns | Description |
+|---|-------------|-------------|
+| 1 | `CLIENT_ID` | Unique customer identifier |
+| 2 | `AGE` | Customer age |
+| 3 | `GENDER` | Male / Female |
+| 4 | `NATIONALITY` | Region/continent |
+| 5 | `OCCUPATION` | Job title |
+| 6 | `INCOME` | Annual income ($) |
+| 7 | `DEPOSITS` | Total deposits ($) |
+| 8 | `LOANS` | Total loans ($) |
+| 9 | `SAVINGS` | Savings balance ($) |
+| 10 | `RISK_WEIGHTING` | Risk score (1-5) |
+| 11 | `BUSINESS_LENDING` | Business loan amount ($) |
+| 12 | `LOYALTY_CLASS` | Jade / Silver / Gold / Platinum |
+| 13 | `CREDIT_CARD_BALANCE` | Outstanding CC balance |
+| 14 | `NO_OF_CREDIT_CARDS` | Cards held (1-3) |
+| 15 | `FEE_STRUCTURE` | Low / Mid / High |
+| 16 | `PROPERTIES_OWNED` | Number of properties |
+| 17 | `AGE_CATEGORY` | Derived: Young / Adult / Middle-Aged / Senior |
+
+---
+
+## 🔧 Pipeline Execution Steps
+
+### 🟤 Step 1 — Bronze Layer (Raw Ingestion)
+```sql
+SELECT * FROM BANKINGDB.PUBLIC.BANKING;
+-- 3,000 raw customer records, 27 columns
+```
+
+### ⚪ Step 2 — Silver Layer (Deduplication)
+
+| Check | Method | Result |
+|-------|--------|--------|
+| Duplicate Detection | `ROW_NUMBER() OVER (PARTITION BY Client_ID)` | 59 duplicates found |
+| Clean Table | `BANKING_CLEAN` (rn = 1 only) | 3,000 → 2,940 |
+| Null Audit | Full column null check | ✅ All clean |
+
+### 🟡 Step 3 — Gold Layer (Feature Engineering)
+```sql
+-- Age category derivation
+ALTER TABLE BANKING_CLEAN ADD COLUMN age_category VARCHAR;
+UPDATE BANKING_CLEAN SET age_category = 
+  CASE
+    WHEN AGE < 25 THEN 'Young'
+    WHEN AGE BETWEEN 25 AND 40 THEN 'Adult'
+    WHEN AGE BETWEEN 41 AND 60 THEN 'Middle-Aged'
+    ELSE 'Senior'
+  END;
+```
+
+### 🟢 Step 4 — Analytics Layer
+- 18 analytical queries across demographics, finance, risk, and operations
+
+---
+
+## 📈 Key Performance Indicators (KPIs)
+
+| KPI | Value | Interpretation |
+|-----|-------|----------------|
+| 👥 Total Customers | **2,940** | After deduplication |
+| 💰 Total Deposits | **$1.97B** | Customer deposits |
+| 🏦 Total Loans | **$1.74B** | Outstanding loans |
+| 💼 Business Lending | **$2.55B** | Business loan portfolio |
+| 💵 Avg Income | **$171,475** | Per-customer average |
+| 🏠 Total Savings | **$683.6M** | Customer savings |
+| 💳 Total CC Balance | **$9.3M** | Credit card outstanding |
+| 🎖️ Superannuation | **$75.1M** | Retirement funds |
+
+---
+
+## 🔍 Deep-Dive Insights
+
+### 1️⃣ Customer Demographics — Senior-Heavy Portfolio
+
+| Age Category | Customers | Share | Total Deposits |
+|--------------|-----------|-------|----------------|
+| 👴 Senior (60+) | 1,066 | 36.3% | $708.7M |
+| 🧑‍💼 Middle-Aged (41-60) | 857 | 29.2% | — |
+| 👨‍💻 Adult (25-40) | 701 | 23.8% | — |
+| 🧑‍🎓 Young (<25) | 316 | 10.7% | $204.8M |
+
+> 💡 **Insight:** **65% of customers are 41+** — strong retirement/wealth management opportunity. Youth segment at only **10.7%** — acquisition gap.
+
+---
+
+### 2️⃣ Financial Snapshot by Segment
 
 | Metric | Senior | Middle-Aged | Adult | Young |
 |--------|--------|-------------|-------|-------|
 | Total Deposits | $708.7M | — | — | $204.8M |
 | Total Loans | $628.8M | — | — | $177.5M |
-| Credit Card Balance | — | $2.76M (highest) | — | $951K (lowest) |
+| CC Balance | — | **$2.76M** (highest) | — | $951K (lowest) |
+| Avg Business Lending | $870,898 | $854,572 | **$880,111** | $851,994 |
 
-- **Income by Occupation:** Software Engineer IV highest ($261,595), Staff Account I lowest ($97,680)
-- Seniors dominate both deposits and loans due to segment size
+> 💡 **Insight:** **Adults (25-40)** have the highest avg business lending ($880K) — high-value growth-phase borrowers.
 
-### 3. Risk Analysis
+---
+
+### 3️⃣ Risk Analysis — Uniform Across Ages
 
 | Age Category | Avg Risk Weighting |
-|---|---|
+|--------------|-------------------|
 | Middle-Aged | 2.26 |
 | Senior | 2.26 |
 | Adult | 2.24 |
 | Young | 2.22 |
 
-- Risk is **remarkably uniform** across all age groups (2.22–2.26)
-- Age alone is NOT a strong risk differentiator
-- Other factors (income, loan-to-deposit ratio) likely matter more
+> 💡 **Insight:** Risk is **remarkably uniform** (2.22–2.26). Age alone is NOT a risk differentiator — need multi-factor models (income, LTD ratio, properties).
 
-### 4. Business Lending
+---
 
-| Age Category | Users | Total Lending | Avg Lending |
-|---|---|---|---|
-| Senior | 1,062 | $928.4M | $870,898 |
-| Middle-Aged | 853 | $732.4M | $854,572 |
-| Adult | 698 | $617.0M | $880,111 |
-| Young | 313 | $269.2M | $851,994 |
+### 4️⃣ Business Lending — Near-Universal Adoption
 
-- **99.5%** of customers (2,926/2,940) have active business lending — near-universal adoption
-- Total portfolio: **$2.55B**
-- Adults have the highest avg lending ($880K) — high-value growth-phase borrowers
-- Top occupations: General Manager ($1.43M), Engineer I ($1.30M), Food Chemist ($1.25M)
+| Metric | Value |
+|--------|-------|
+| Customers with BL | 2,926 |
+| Adoption Rate | **99.5%** |
+| Total Portfolio | **$2.55B** |
+| Top Occupation | General Manager ($1.43M avg) |
+| Second | Engineer I ($1.30M avg) |
 
-### 5. Loyalty Classification
+> 💡 **Insight:** **99.5% of customers** have active business lending — it's a universal product, not a niche offering.
 
-| Tier | Customers | % |
-|---|---|---|
-| Jade | 1,304 | 44.4% |
-| Silver | 754 | 25.6% |
-| Gold | 574 | 19.5% |
-| Platinum | 308 | 10.5% |
+---
 
-- Over 70% are Jade/Silver — large base for loyalty upgrade campaigns
-- Only 10.5% are Platinum — exclusive tier, high retention priority
+### 5️⃣ Loyalty Tiers
 
-### 6. Credit Card Distribution
+| Tier | Customers | Share | Strategy |
+|------|-----------|-------|----------|
+| 💚 Jade | 1,304 | 44.4% | Upgrade campaigns |
+| 🥈 Silver | 754 | 25.6% | Cross-sell opportunities |
+| 🥇 Gold | 574 | 19.5% | Retention & premium offers |
+| 💎 Platinum | 308 | 10.5% | Exclusive retention priority |
 
-| Cards Held | Customers | % |
-|---|---|---|
-| 1 | 1,880 | 64.0% |
-| 2 | 755 | 25.7% |
-| 3 | 305 | 10.4% |
+> 💡 **Insight:** 70% are Jade/Silver — massive base for loyalty upgrade programs.
 
-- 64% hold only 1 card — significant cross-sell opportunity
-- 10.4% hold 3 cards — premium segment for rewards programs
+---
 
-### 7. Fee Structure
+### 6️⃣ Credit Card & Fee Analysis
 
-| Fee Tier | Customers | % |
-|---|---|---|
-| High | 1,441 | 49.0% |
+| Cards Held | Customers | Share |
+|------------|-----------|-------|
+| 1 card | 1,880 | **64.0%** |
+| 2 cards | 755 | 25.7% |
+| 3 cards | 305 | 10.4% |
+
+| Fee Tier | Customers | Share |
+|----------|-----------|-------|
+| High | 1,441 | **49.0%** |
 | Mid | 944 | 32.1% |
 | Low | 555 | 18.9% |
 
-- Nearly half the customer base is on High fee structure — largest revenue contributors
-- Only 19% on Low fees — bank successfully monetizes its customer base
-
-### 8. Additional Findings
-- **Multi-property owners:** 1,488 customers own more than 1 property
-- **Highest-value customer:** Harry Burns — $6.42M total value
-- **Busiest branch:** BR_ID 3 (1,318 customers)
-- **Top relationship manager:** IA_ID 8 (176 customers)
+> 💡 **Insight:** 64% hold only 1 card — **significant cross-sell opportunity**. 49% on High fees — bank effectively monetizes its base.
 
 ---
 
-## Recommendations
-1. **Youth Acquisition:** Launch digital-first products (student accounts, starter credit cards) to grow the 10.7% Young segment
-2. **Senior Wealth Management:** Offer premium advisory and retirement planning for the 36.3% Senior segment
-3. **Adult Cross-Sell:** Highest avg business lending ($880K) — target with home loans, investments, and insurance
-4. **Risk-Based Pricing:** Build models using income, loan-to-deposit ratio, and property ownership instead of age
-5. **Branch Optimization:** BR_ID 3 handles 45% of customers — evaluate capacity and staffing
-6. **RM Workload Balancing:** Top RM handles 176 customers — assess service quality and redistribute
-7. **Loyalty Upgrades:** 70% at Jade/Silver — run engagement campaigns to drive tier upgrades
-8. **Credit Card Cross-Sell:** 64% hold only 1 card — promote additional card products
+### 7️⃣ Top Customers & Operations
+
+| Metric | Value |
+|--------|-------|
+| 🏆 Highest-Value Customer | Harry Burns — $6.42M |
+| 🏢 Busiest Branch | BR_ID 3 (1,318 customers / 45%) |
+| 👨‍💼 Top RM | IA_ID 8 (176 customers) |
+| 🏠 Multi-Property Owners | 1,488 (50.6%) |
 
 ---
 
-## SQL Analyses Included (banking.sql)
+## 📋 Complete Analysis Catalog
 
-| # | Analysis | Type |
-|---|----------|------|
-| 1 | Raw data & row count | Exploration |
-| 2 | Null & duplicate checks | Data Quality |
-| 3 | Deduplication (banking_clean) | Cleaning |
-| 4 | Age category creation | Feature Engineering |
-| 5 | Age category distribution | Demographics |
-| 6 | KPI summary | Overview |
-| 7 | Gender & nationality distribution | Demographics |
-| 8 | Deposits & loans by age | Financial |
-| 9 | Income by occupation | Financial |
-| 10 | Credit card balance by age | Financial |
-| 11 | Loyalty classification | Customer |
-| 12 | Risk weighting by age | Risk |
-| 13 | Business lending users | Lending |
-| 14 | Multi-property owners | Asset |
-| 15 | Top 10 high-value customers | Customer |
-| 16 | Branch & RM distribution | Operations |
-| 17 | Credit card count distribution | Product |
-| 18 | Fee structure distribution | Revenue |
+| # | Analysis | Category | Layer |
+|---|----------|----------|-------|
+| 1 | Raw data preview & row count | Exploration | Bronze |
+| 2 | Null & duplicate checks | Data Quality | Silver |
+| 3 | Deduplication (BANKING_CLEAN) | Cleaning | Silver |
+| 4 | Age category creation | Feature Eng. | Gold |
+| 5 | Age category distribution | Demographics | Analytics |
+| 6 | KPI summary (deposits, loans, savings) | Overview | Analytics |
+| 7 | Gender & nationality distribution | Demographics | Analytics |
+| 8 | Deposits & loans by age | Financial | Analytics |
+| 9 | Income by occupation | Financial | Analytics |
+| 10 | Credit card balance by age | Financial | Analytics |
+| 11 | Loyalty classification | Customer | Analytics |
+| 12 | Risk weighting by age | Risk | Analytics |
+| 13 | Business lending users & amounts | Lending | Analytics |
+| 14 | Multi-property owners | Asset | Analytics |
+| 15 | Top 10 high-value customers | Customer | Analytics |
+| 16 | Branch & RM distribution | Operations | Analytics |
+| 17 | Credit card count distribution | Product | Analytics |
+| 18 | Fee structure distribution | Revenue | Analytics |
+
+---
+
+## 🛠️ SQL Techniques & Methods
+
+| Technique | Use Case |
+|-----------|----------|
+| `ROW_NUMBER() OVER (PARTITION BY)` | Deduplication by Client_ID |
+| `CASE WHEN` | Age category feature engineering |
+| `SUM() / AVG() / COUNT()` | Financial aggregations |
+| `GROUP BY + ORDER BY` | Segment analysis |
+| `COUNT(DISTINCT)` | Unique entity counting |
+| `ROUND()` | Clean financial formatting |
+| `HAVING COUNT(*) > 1` | Multi-property detection |
+
+---
+
+## ✅ Key Findings & Recommendations
+
+| # | Finding | Recommendation | Priority |
+|---|---------|----------------|----------|
+| 1 | Youth segment only 10.7% | Launch digital-first products (student accounts, starter cards) | 🔴 High |
+| 2 | 64% hold only 1 credit card | Cross-sell additional cards with rewards programs | 🔴 High |
+| 3 | Seniors = 36.3% of customers | Expand wealth management & retirement advisory services | 🟡 Medium |
+| 4 | Adults have highest avg BL ($880K) | Target with home loans, investments, insurance bundles | 🟡 Medium |
+| 5 | Risk uniform across ages (2.22-2.26) | Build multi-factor risk models (income, LTD, properties) | 🟡 Medium |
+| 6 | Branch 3 handles 45% of customers | Evaluate capacity, consider redistribution or expansion | 🟢 Low |
+| 7 | Top RM: 176 customers | Assess service quality; redistribute to prevent burnout | 🟢 Low |
+| 8 | 70% Jade/Silver loyalty | Design tier upgrade incentives to move to Gold/Platinum | 🟢 Low |
 
 ---
 
 ## Tech Stack
-- **Platform:** Snowflake
-- **Role:** ACCOUNTADMIN
-- **Warehouse:** COMPUTE_WH
-- **Database:** BANKINGDB
-- **Language:** SQL
 
-## Author
-Saswat Betta
+| Layer | Technology |
+|-------|------------|
+| **Cloud Platform** | Snowflake |
+| **Compute** | COMPUTE_WH (Virtual Warehouse) |
+| **Database** | BANKINGDB |
+| **Schema** | PUBLIC |
+| **Language** | SQL |
+| **Role** | ACCOUNTADMIN |
+| **IDE** | Snowsight (Snowflake Web UI) |
+
+---
+
+ #How to Run
+
+```sql
+-- Step 1: Set context
+USE DATABASE BANKINGDB;
+USE SCHEMA PUBLIC;
+
+-- Step 2: Verify raw data
+SELECT * FROM BANKING LIMIT 10;
+
+-- Step 3: Verify clean data
+SELECT * FROM BANKING_CLEAN LIMIT 10;
+
+-- Step 4: Run banking.sql queries sequentially
+
+##  Author
+
+**Saswat Betta Aptakam**
+
+*Built with  Snowflake | End-to-End Data Analysis Projects*
